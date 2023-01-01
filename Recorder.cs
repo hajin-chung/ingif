@@ -12,15 +12,14 @@ namespace ingif
     class Recorder
     {
         #region settings
-        public int fps { get; set; }
+        public int Fps { get; set; }
         #endregion
 
-        private Task captureTask;
         private CancellationToken ct;
         private CancellationTokenSource ts;
 
-        public List<Frame> frames;
-        
+        public Frames frames;
+        Task<Frames> captureTask;
         private readonly IntPtr _desktopWindow = IntPtr.Zero;
         protected IntPtr WindowDeviceContext;
         protected IntPtr CompatibleDeviceContext;
@@ -30,14 +29,16 @@ namespace ingif
 
         public Recorder()
         {
-            fps = 15;
-            frames = new List<Frame>();
+            Fps = 15;
+            frames = new();
             PixelOperations = CopyPixelOperations.SourceCopy | CopyPixelOperations.CaptureBlt;
+            ts = new CancellationTokenSource();
+            ct = ts.Token;
         }
 
-        private List<Frame> Capture(int X, int Y, int Width, int Height, CancellationToken ct) 
+        private Frames Capture(int X, int Y, int Width, int Height, CancellationToken ct) 
         { 
-            List<Frame> frames = new List<Frame>();
+            Frames frames = new();
             while(true)
             {
                 if (ct.IsCancellationRequested)
@@ -48,50 +49,40 @@ namespace ingif
                 if (success) 
                 {
                     Bitmap bitmap = Image.FromHbitmap(CompatibleBitmap);
-                    frames.Append(new Frame(bitmap));
-                    int len = frames.Count;
-                    frames.Last().SaveAsPng(string.Format("{0}.png", len));
+                    Frame frame= new(bitmap);
+                    frames.Add(frame);
                 }
-                Thread.Sleep(Convert.ToInt32(1000 / fps));
+                Thread.Sleep(Convert.ToInt32(1000 / Fps));
             }
             return frames;
         }
 
         public void Start(int X, int Y, int Width, int Height)
         {
-            ts = new CancellationTokenSource();
-            ct = ts.Token;
-            frames = new List<Frame>();
+            frames = new();
 
             WindowDeviceContext = User32.GetWindowDC(_desktopWindow);
             CompatibleDeviceContext = Gdi32.CreateCompatibleDC(WindowDeviceContext);
             CompatibleBitmap = Gdi32.CreateCompatibleBitmap(WindowDeviceContext, Width, Height);
             _oldBitmap = Gdi32.SelectObject(CompatibleDeviceContext, CompatibleBitmap);
 
-            captureTask = new Task(() =>
+            captureTask = Task<Frames>.Factory.StartNew(() =>
             {
-                Capture(X, Y, Width, Height, ct);
+                return Capture(X, Y, Width, Height, ct);
             }, ct);
-            captureTask.Start();
         }
 
         public void Stop()
         {
             ts.Cancel();
-            captureTask.Dispose();
+            frames = captureTask.Result;
+            frames.ExportAsGif("./test.gif");
             SaveFrames("./");
         }
 
         public void SaveFrames(string location)
         {
             Trace.WriteLine(frames.Count);
-            for(int i=0; i < frames.Count; i++)
-            {
-                String fileName = String.Format("{0}.png", i);
-                String dest = Path.Combine(location, fileName);
-                Trace.WriteLine(dest);
-                frames[i].SaveAsPng(dest);
-            }
         }
     }
 }

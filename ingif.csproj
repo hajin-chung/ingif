@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="resources\exit.png" />
+    <None Remove="resources\ffmpeg.exe" />
     <None Remove="resources\record_done.png" />
     <None Remove="resources\record_ready.png" />
     <None Remove="resources\settings.png" />
@@ -40,6 +41,12 @@
     <Resource Include="resources\settings.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="gifski.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
