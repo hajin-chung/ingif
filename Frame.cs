@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace ingif
 {
     class Frame
     {
-        public Frame() 
-        { 
+        Bitmap bitmap;
 
+        public Frame(Bitmap bitmap)
+        {
+            this.bitmap = bitmap;
         }
 
-        public static Frame FromScreen(int X, int Y, int Width, int Height)
+        public void SaveAsPng(string dest)
         {
-            return new Frame();
+            bitmap.Save(dest, ImageFormat.Png);
         }
     }
 }

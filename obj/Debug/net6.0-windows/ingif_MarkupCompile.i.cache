@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Dev\ingif\obj\Debug\net6.0-windows\
+C:\Users\hajin\Dev\ingif\obj\Debug\net6.0-windows\
 ingif
 none
 false
 TRACE;DEBUG;NET;NET6_0;NETCOREAPP
-C:\Dev\ingif\App.xaml
+C:\Users\hajin\Dev\ingif\App.xaml
 11407045341
 
 9827227768
 195457303789
 MainWindow.xaml;
 
-True
+False
 
